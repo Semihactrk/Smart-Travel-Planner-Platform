@@ -26,6 +26,10 @@ public class ActivityPlan implements ActivityComponent {
         return components.get(index);
     }
 
+    public List<ActivityComponent> getComponents() {
+        return new ArrayList<>(components);
+    }
+
     @Override
     public String getName() {
         return planName;
