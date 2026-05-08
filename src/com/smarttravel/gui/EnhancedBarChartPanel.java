@@ -3,12 +3,16 @@ package com.smarttravel.gui;
 import com.smarttravel.City;
 import javax.swing.*;
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class EnhancedBarChartPanel extends JPanel {
     private List<City> cities;
     private static final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 12);
-    private static final Font LABEL_FONT = new Font("Segoe UI", Font.PLAIN, 10);
+    private static final Font LABEL_FONT = new Font("Segoe UI", Font.PLAIN, 9);
+    private static final Color BAR_COLOR = new Color(244, 67, 54);
+    private static final Color GRID_COLOR = new Color(200, 200, 200);
+    private DecimalFormat tempFormat = new DecimalFormat("0.0");
 
     public EnhancedBarChartPanel(List<City> cities) {
         this.cities = cities;
@@ -32,78 +36,81 @@ public class EnhancedBarChartPanel extends JPanel {
 
         int width = getWidth();
         int height = getHeight();
-        int padding = 40;
-        int graphHeight = height - 2 * padding;
-        int graphWidth = width - 2 * padding;
+        int margin = 40;
+        int chartWidth = width - 2 * margin;
+        int chartHeight = height - 80;
 
         // Draw title
         g2d.setFont(TITLE_FONT);
-        g2d.setColor(new Color(25, 118, 210));
-        g2d.drawString("City Temperatures (°C)", 10, 25);
+        g2d.setColor(new Color(244, 67, 54));
+        g2d.drawString("Temperature Overview", 10, 25);
 
         // Draw axes
         g2d.setColor(Color.BLACK);
         g2d.setStroke(new BasicStroke(2));
-        g2d.drawLine(padding, height - padding, width - padding, height - padding); // X-axis
-        g2d.drawLine(padding, padding, padding, height - padding); // Y-axis
+        g2d.drawLine(margin, height - margin, width - margin, height - margin); // X-axis
+        g2d.drawLine(margin, height - margin, margin, margin); // Y-axis
 
-        // Find max and min temperature for scaling
-        double maxTemp = -100;
-        double minTemp = 100;
-        for (City city : cities) {
-            maxTemp = Math.max(maxTemp, city.getCurrentTemperature());
-            minTemp = Math.min(minTemp, city.getCurrentTemperature());
+        // Find min and max temperatures
+        double maxTemp = 50;
+        double minTemp = -20;
+
+        // Draw grid lines and labels
+        g2d.setColor(GRID_COLOR);
+        g2d.setStroke(new BasicStroke(1));
+        g2d.setFont(new Font("Segoe UI", Font.PLAIN, 8));
+
+        for (int i = 0; i <= 7; i++) {
+            double tempValue = minTemp + (maxTemp - minTemp) * i / 7;
+            int y = (int) (height - margin - (tempValue - minTemp) / (maxTemp - minTemp) * chartHeight);
+            g2d.drawLine(margin - 5, y, width - margin, y);
+            g2d.setColor(Color.BLACK);
+            g2d.drawString(tempFormat.format(tempValue) + "°", 5, y + 4);
+            g2d.setColor(GRID_COLOR);
         }
-        double tempRange = maxTemp - minTemp;
-        if (tempRange == 0) tempRange = 10;
-
-        int barWidth = Math.max(15, graphWidth / (cities.size() * 2));
 
         // Draw bars
-        g2d.setFont(LABEL_FONT);
+        int barWidth = chartWidth / cities.size();
+        g2d.setColor(BAR_COLOR);
+
         for (int i = 0; i < cities.size(); i++) {
             City city = cities.get(i);
-            double normalizedTemp = (city.getCurrentTemperature() - minTemp) / tempRange;
-            int barHeight = (int) (normalizedTemp * (graphHeight - 20));
+            double temp = city.getCurrentTemperature();
+            
+            // Clamp temperature to display range
+            double clampedTemp = Math.max(minTemp, Math.min(maxTemp, temp));
+            
+            int barHeight = (int) ((clampedTemp - minTemp) / (maxTemp - minTemp) * chartHeight);
+            int barX = margin + i * barWidth + 5;
+            int barY = height - margin - barHeight;
 
-            int x = padding + (i * (graphWidth / cities.size())) + (graphWidth / cities.size() - barWidth) / 2;
-            int y = height - padding - barHeight;
+            // Draw bar with gradient effect
+            g2d.fillRect(barX, barY, barWidth - 10, barHeight);
+            g2d.setColor(Color.BLACK);
+            g2d.setStroke(new BasicStroke(1));
+            g2d.drawRect(barX, barY, barWidth - 10, barHeight);
 
-            // Color based on temperature
-            Color barColor;
-            if (city.getCurrentTemperature() > 25) {
-                barColor = new Color(244, 67, 54); // Red for hot
-            } else if (city.getCurrentTemperature() > 15) {
-                barColor = new Color(255, 193, 7); // Yellow for warm
-            } else if (city.getCurrentTemperature() > 0) {
-                barColor = new Color(33, 150, 243); // Blue for cold
-            } else {
-                barColor = new Color(144, 202, 249); // Light blue for freezing
+            // Draw temperature value on top
+            g2d.setFont(LABEL_FONT);
+            g2d.setColor(Color.BLACK);
+            g2d.drawString(tempFormat.format(temp) + "°", barX + 2, barY - 5);
+
+            // Draw city name below
+            String cityName = city.getName();
+            if (cityName.length() > 4) {
+                cityName = cityName.substring(0, 4);
             }
-
-            g2d.setColor(barColor);
-            g2d.fillRect(x, y, barWidth, barHeight);
-            g2d.setColor(Color.BLACK);
-            g2d.drawRect(x, y, barWidth, barHeight);
-
-            // Draw temperature value
-            g2d.setColor(Color.BLACK);
-            g2d.drawString(String.format("%.1f", city.getCurrentTemperature()), x - 5, y - 5);
-
-            // Draw city name
-            String shortName = city.getName().substring(0, Math.min(3, city.getName().length()));
-            g2d.drawString(shortName, x + barWidth / 2 - 10, height - padding + 15);
+            g2d.drawString(cityName, barX + 2, height - margin + 15);
+            
+            g2d.setColor(BAR_COLOR);
         }
 
-        // Draw Y-axis scale
-        g2d.setColor(Color.GRAY);
-        g2d.setFont(new Font("Segoe UI", Font.PLAIN, 9));
-        int scaleSteps = 5;
-        for (int i = 0; i <= scaleSteps; i++) {
-            double temp = minTemp + (tempRange / scaleSteps) * i;
-            int y = height - padding - (int) ((temp - minTemp) / tempRange * (graphHeight - 20));
-            g2d.drawString(String.format("%.0f", temp), padding - 35, y + 5);
-            g2d.drawLine(padding - 5, y, padding, y);
-        }
+        // Draw axis labels
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        g2d.drawString("Cities", width / 2 - 20, height - 5);
+        g2d.rotate(-Math.PI / 2);
+        g2d.drawString("Temperature (°C)", -height / 2, 15);
+        g2d.rotate(Math.PI / 2);
     }
 }

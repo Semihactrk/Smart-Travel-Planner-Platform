@@ -2,97 +2,65 @@
 
 ## Project Overview
 
-The **Smart Travel Planner Platform** is a comprehensive Java application designed for exploring, monitoring, and planning multi-city trips. The system integrates multiple design patterns to provide an elegant, extensible, and feature-rich travel planning experience.
+The **Smart Travel Planner Platform** is a comprehensive Java application designed for exploring, monitoring, and planning trips across different cities. Built using modern design patterns, this team project integrates multiple subsystems to provide a rich, interactive travel planning experience.
 
 ### Key Features
-- **City Management**: Browse and filter cities by various criteria
-- **Real-time Weather Updates**: Live weather monitoring with dynamic chart updates
-- **Travel Planning**: Create hierarchical activity plans with multiple nested levels
-- **Budget Tracking**: Automatic cost and duration calculation for travel activities
-- **Undo/Redo Functionality**: Full command history support for user actions
-- **Rich GUI**: Modern, intuitive interface with interactive charts and controls
+
+- 🌍 **City Exploration**: Browse and sort cities by name, population, or area
+- 🌤 **Weather Monitoring**: Real-time weather updates with dynamic filtering
+- 📋 **Travel Planning**: Create hierarchical activity plans with cost and time tracking
+- 📊 **Analytics**: Temperature charts and weather distribution visualization
+- ↩️ **Undo/Redo**: Full command history support for all user actions
+- 🎨 **Modern UI**: Enhanced, elegant interface with intuitive controls
 
 ---
 
 ## Design Patterns Implemented
 
-### 1. **Singleton Pattern** (CityRepository)
-Ensures a single instance of the city repository throughout the application lifecycle.
-```java
-public static synchronized CityRepository getInstance() {
-    if (instance == null) {
-        instance = new CityRepository();
-    }
-    return instance;
-}
-```
+This project demonstrates the practical application of 7 essential design patterns:
 
-### 2. **Strategy Pattern** (Sorting)
-Provides interchangeable sorting algorithms for cities:
-- `SortByName` - Alphabetical ordering
-- `SortByPopulation` - Descending by population
-- `SortByArea` - Descending by area
+### 1. **Singleton Pattern**
+- **Class**: `CityRepository`
+- **Purpose**: Ensures a single instance manages city data
+- **Implementation**: Thread-safe singleton that loads city data from JSON once
 
-```java
-public interface SortStrategy {
-    void sort(List<City> cities);
-}
-```
+### 2. **Strategy Pattern**
+- **Classes**: `SortStrategy`, `SortByName`, `SortByPopulation`, `SortByArea`
+- **Purpose**: Enables flexible sorting algorithms without modifying client code
+- **Usage**: Users select sorting criteria from dropdown; strategy is applied dynamically
 
-### 3. **Iterator Pattern** (Weather Filtering)
-Implements custom iterators for filtering cities by weather conditions:
-- `WeatherCityIterator` - Traverses cities matching a specific weather state
+### 3. **Iterator Pattern**
+- **Classes**: `WeatherCityIterator`, `WeatherObserver`
+- **Purpose**: Provides sequential access to cities filtered by weather conditions
+- **Usage**: Four iterators for each weather state (SUNNY, CLOUDY, RAINY, SNOWY)
 
-### 4. **Observer Pattern** (Weather Updates)
-- **Subject**: `WeatherReportProvider` - Updates weather information every 3 seconds
-- **Observer**: `WeatherObserver` - Receives updates and refreshes UI components
+### 4. **Observer Pattern (Publisher-Subscriber)**
+- **Classes**: `WeatherReportProvider`, `WeatherObserver`, `ModernTravelPlannerGUI`
+- **Purpose**: Enables real-time updates to weather data and UI
+- **Implementation**: Weather provider runs on separate thread, updates every 3 seconds
 
-```java
-public interface WeatherObserver {
-    void update(List<City> cities);
-}
-```
+### 5. **Decorator Pattern**
+- **Classes**: `MuseumVisit`, `ShoppingMallVisit`, `ParkVisit`, `CityCenterVisit`
+- **Purpose**: Wraps City objects with additional "visit planning" features
+- **Features**: Each decorator adds cost and time information
 
-### 5. **Decorator Pattern** (Activity Planning)
-Dynamically adds activity options to cities without modifying the City class:
-- `MuseumVisit` - €25, 2 hours
-- `ShoppingMallVisit` - €40, 3 hours
-- `ParkVisit` - €10, 1.5 hours
-- `CityCenterVisit` - €20, 2 hours
+### 6. **Composite Pattern**
+- **Classes**: `ActivityComponent`, `ActivityPlan`, `ActivityLeaf`
+- **Purpose**: Creates hierarchical tree structure for travel plans
+- **Features**:
+  - Recursive composition of activities and sub-plans
+  - Automatic cost and time calculation
+  - Support for complex trip structures
 
-```java
-public abstract class ActivityDecorator implements CityActivity {
-    protected CityActivity wrappedActivity;
-    // Implementation...
-}
-```
-
-### 6. **Composite Pattern** (Activity Plans)
-Allows building hierarchical activity plans:
-- `ActivityPlan` (Composite) - Contains multiple activities or sub-plans
-- `ActivityLeaf` (Leaf) - Individual activity with cost and duration
-
-```java
-public interface ActivityComponent {
-    void add(ActivityComponent component);
-    void remove(ActivityComponent component);
-    double getCost();
-    double getRequiredTime();
-}
-```
-
-### 7. **Command Pattern** (Undo/Redo)
-Encapsulates user actions as command objects:
-- `AddActivityCommand` - Adds activities to plans
-- `ClearPlanCommand` - Clears all activities from a plan
-- `CommandManager` - Manages undo/redo stacks
-
-```java
-public interface Command {
-    void execute();
-    void undo();
-}
-```
+### 7. **Command Pattern**
+- **Classes**: `Command`, `CommandManager`, `AddActivityCommand`, `ClearPlanCommand`
+- **Purpose**: Encapsulates user actions as objects for undo/redo support
+- **Operations**:
+  - Add city to trip
+  - Remove city from trip
+  - Add activity to plan
+  - Remove activity from plan
+  - Clear entire plan
 
 ---
 
@@ -100,40 +68,40 @@ public interface Command {
 
 ```
 src/com/smarttravel/
-├── City.java                          # Core city model
+├── City.java                          # Core city entity
 ├── WeatherState.java                  # Weather enumeration
 ├── repository/
-│   └── CityRepository.java            # Singleton city data source
+│   └── CityRepository.java            # Singleton city manager
 ├── strategy/
 │   ├── SortStrategy.java              # Strategy interface
-│   ├── SortByName.java
-│   ├── SortByPopulation.java
-│   └── SortByArea.java
+│   ├── SortByName.java                # Name-based sorting
+│   ├── SortByPopulation.java          # Population-based sorting
+│   └── SortByArea.java                # Area-based sorting
 ├── iterator/
-│   └── WeatherCityIterator.java       # Weather-based filtering
+│   └── WeatherCityIterator.java       # Weather-based city iterator
 ├── observer/
 │   ├── WeatherObserver.java           # Observer interface
-│   └── WeatherReportProvider.java     # Observable weather source
+│   └── WeatherReportProvider.java     # Observable weather provider
 ├── decorator/
-│   ├── CityActivity.java              # Decorator interface
-│   ├── ActivityDecorator.java         # Base decorator
-│   ├── MuseumVisit.java
-│   ├── ShoppingMallVisit.java
-│   ├── ParkVisit.java
-│   └── CityCenterVisit.java
+│   ├── CityActivity.java              # Activity interface
+│   ├── BaseCityActivity.java          # Base activity implementation
+│   ├── MuseumVisit.java               # Museum activity decorator
+│   ├── ShoppingMallVisit.java         # Shopping activity decorator
+│   ├── ParkVisit.java                 # Park activity decorator
+│   └── CityCenterVisit.java           # City center activity decorator
 ├── composite/
-│   ├── ActivityComponent.java         # Component interface
-│   ├── ActivityPlan.java              # Composite
-│   └── ActivityLeaf.java              # Leaf
+│   ├── ActivityComponent.java         # Composite interface
+│   ├── ActivityPlan.java              # Composite node
+│   └── ActivityLeaf.java              # Leaf node
 ├── command/
 │   ├── Command.java                   # Command interface
-│   ├── CommandManager.java            # Undo/redo manager
-│   ├── AddActivityCommand.java
-│   └── ClearPlanCommand.java
+│   ├── CommandManager.java            # Command executor with undo/redo
+│   ├── AddActivityCommand.java        # Add activity command
+│   └── ClearPlanCommand.java          # Clear plan command
 └── gui/
-    ├── ModernTravelPlannerGUI.java    # Main GUI (enhanced version)
-    ├── EnhancedBarChartPanel.java     # Temperature visualization
-    └── EnhancedPieChartPanel.java     # Weather distribution
+    ├── ModernTravelPlannerGUI.java    # Main GUI application
+    ├── EnhancedBarChartPanel.java     # Temperature chart visualization
+    └── EnhancedPieChartPanel.java     # Weather distribution chart
 ```
 
 ---
@@ -141,8 +109,9 @@ src/com/smarttravel/
 ## Installation & Setup
 
 ### Prerequisites
-- Java 8 or higher
-- Maven (for building)
+- Java 11 or higher
+- Maven (optional, for dependency management)
+- IDE: IntelliJ IDEA, Eclipse, or NetBeans
 
 ### Building the Project
 
@@ -151,208 +120,206 @@ src/com/smarttravel/
 git clone https://github.com/Semihactrk/Smart-Travel-Planner-Platform.git
 cd Smart-Travel-Planner-Platform
 
-# Compile
-mvn clean compile
+# Compile the project
+javac -d bin src/com/smarttravel/**/*.java
 
-# Package as JAR
-mvn clean package
+# Or using Maven
+mvn clean compile
 ```
 
 ### Running the Application
 
 ```bash
-# Using Maven
-mvn exec:java -Dexec.mainClass="com.smarttravel.gui.ModernTravelPlannerGUI"
+# Run the main GUI application
+java -cp bin com.smarttravel.gui.ModernTravelPlannerGUI
 
-# Using JAR file
-java -jar Smart-Travel-Planner-Platform.jar
+# Or using Maven
+mvn exec:java -Dexec.mainClass="com.smarttravel.gui.ModernTravelPlannerGUI"
 ```
 
 ---
 
-## Usage Guide
+## User Guide
 
-### Main Interface Sections
+### Interface Overview
 
-#### 1. **Control Panel** (Top)
-- **Sort Dropdown**: Choose sorting method (Name, Population, Area)
-- **Weather Filter**: Filter cities by weather condition
+The application is divided into 6 main sections:
+
+#### 1. **Control Panel (Top)**
+- **Sort Dropdown**: Choose sorting criteria (Name, Population, Area)
+- **Weather Filter**: Filter cities by weather conditions
 - **Undo/Redo Buttons**: Navigate command history
 
-#### 2. **City Lists** (Left Section)
-- **All Cities**: Complete list of available cities
-- **Filtered Cities**: Cities matching current weather filter
+#### 2. **All Cities Panel (Left)**
+- Displays all cities in selected sort order
+- Click to select a city for planning activities
 
-#### 3. **Activity Planner** (Top Right)
-Quick-add buttons for common activities:
-- 🏛 Museum
-- 🛍 Shopping Mall
-- 🌳 Park
-- 🏰 City Center
-- 🎬 Cinema
-- 🍽 Dinner
-- 🗑 Clear Plan
-- 📝 Add Plan
+#### 3. **Filtered Cities Panel (Middle-Left)**
+- Shows cities matching the selected weather condition
+- Synchronized with main city list
 
-#### 4. **Travel Plan Tree** (Center)
-Hierarchical view of activities organized by city:
-- Expandable/collapsible plan nodes
-- Cost and duration display for each activity
+#### 4. **Activity Planner Panel (Middle)**
+- **Activity Buttons**: Add specific activities (Museum, Shopping, Park, etc.)
+- **Add Plan Button**: Create hierarchical sub-plans
+- **Clear Button**: Remove all activities from current city
 
-#### 5. **Analytics Charts** (Bottom)
-- **Temperature Chart**: Bar chart showing current temperatures
+#### 5. **Travel Plan Panel (Middle-Right)**
+- Tree view of hierarchical activity structure
+- Shows cost and time for each activity
+- Displays total plan summary
+
+#### 6. **Analytics Panels (Bottom)**
+- **Temperature Chart**: Bar graph of current temperatures
 - **Weather Distribution**: Pie chart showing weather percentages
 
-#### 6. **Info Panel** (Bottom Status)
-- Current selected city
-- Total budget for selected city
-- Total duration for selected city
+#### 7. **Info Panel (Bottom)**
+- **Selected City**: Current city being edited
+- **Total Budget**: Sum of all activity costs
+- **Total Duration**: Sum of all activity times
 
-### Workflow Example
+### Step-by-Step Usage
 
-1. **Select a City**: Click on any city in the "All Cities" list
-2. **Add Activities**: Click activity buttons to add to the selected city
-3. **Create Sub-Plans**: Click "Add Plan" to create hierarchical organization
-4. **Monitor Budget**: Watch the budget and duration update in real-time
-5. **Undo Changes**: Use "Undo" to revert any action
-6. **Filter by Weather**: Use the weather dropdown to find suitable destinations
+#### Creating a Travel Plan
 
----
+1. **Select a City**: Click on a city in the "All Cities" list
+   - Status updates in the info panel
 
-## Team Contribution
+2. **Add Activities**: Click activity buttons to add planned activities
+   - Museum Visit: $20, 2 hours
+   - Shopping Mall: $50, 3 hours
+   - Park Visit: $10, 2 hours
+   - City Center: $15, 1.5 hours
+   - Cinema: $15, 3 hours
+   - Dinner: $45, 2 hours
 
-### Team Members
-- **Serenay Kumandaveren** - GUI Enhancement & Improvement
-  - Modern UI Design Implementation
-  - Enhanced Chart Panels
-  - User Experience Improvements
+3. **Create Sub-Plans**: Click "Add Plan" to organize activities
+   - Enter plan name (e.g., "Morning Activities")
+   - Activities added will be grouped under this plan
 
-- **Semiha Çiturk** - Core Architecture & Patterns
-  - Design pattern implementation
-  - Repository and data management
-  - Observer/weather system
+4. **Monitor Budget**: View total cost and duration at the bottom
 
-- **[Third Team Member]** - Activity Planning & Commands
-  - Composite pattern implementation
-  - Command/undo-redo system
-  - Decorator implementations
+5. **Switch Cities**: Select a different city to create separate plans
+   - Each city maintains its own activity tree
 
----
+#### Filtering and Sorting
 
-## Configuration Files
+- **By Weather**: Select condition from dropdown
+- **By Property**: Choose sort criteria
+- **Real-time Updates**: Weather changes every 3 seconds
 
-### Cities Data
-Cities are loaded from an internal mock data source. To modify cities, edit `CityRepository.loadCitiesFromJson()`:
+#### Undoing Actions
 
-```java
-private void loadCitiesFromJson(String filename) {
-    cities.add(new City("Istanbul", 15719600, 5343.0, 34.3, WeatherState.SNOWY));
-    // Add more cities...
-}
-```
-
-### Activity Costs
-Customize activity costs in decorator classes:
-
-```java
-public class MuseumVisit extends ActivityDecorator {
-    private static final double COST = 25.0;
-    private static final double TIME = 2.0;
-}
-```
+- **Undo**: Reverts the last action
+- **Redo**: Restores a reverted action
+- **Full History**: All actions maintain complete undo/redo stack
 
 ---
 
-## Advanced Features
+## Data Structure: Cities
 
-### Dynamic Weather Updates
-The weather system runs on a separate thread and updates cities every 3 seconds:
-- Random temperature changes (±5°C)
-- Random weather state transitions
-- Automatic UI refresh
+The application includes 7 sample cities:
 
-### Hierarchical Plans
-Create nested activity plans:
-```
-My Travel Plan
-├── Istanbul Plan
-│   ├── Museums Day
-│   │   ├── Museum Visit
-│   │   └── City Center Visit
-│   └── Shopping Day
-│       ├── Shopping Mall
-│       └── Dinner
-└── Ankara Plan
-    ├── Park Visit
-    └── Cinema
-```
+| City | Population | Area (km²) | Weather |
+|------|-----------|-----------|----------|
+| Ankara | 5,317,215 | 25,615.0 | SUNNY |
+| Buhara | 280,000 | 143.1 | CLOUDY |
+| Gaziantep | 1,835,508 | 6,778.9 | SUNNY |
+| Gazze | 2,180,400 | 70.9 | SNOWY |
+| Istanbul | 15,719,600 | 5,343.0 | SNOWY |
+| Kudus | 981,711 | 126.0 | CLOUDY |
+| Saraybosna | 347,000 | 141.6 | RAINY |
 
-### Real-time Cost Calculation
-Automatically calculates:
-- Individual activity costs
-- Total plan costs
-- Cumulative city visit costs
+**Note**: Weather and temperature update randomly every 3 seconds for demonstration.
 
 ---
 
-## Performance Considerations
+## Technical Features
 
-- **Memory**: Efficient list management with ArrayList
-- **Threading**: Weather updates run on separate daemon thread
-- **UI Updates**: SwingUtilities.invokeLater() ensures thread safety
-- **Rendering**: Graphics2D with antialiasing for smooth charts
+### Real-Time Updates
+- Weather provider thread updates conditions every 3 seconds
+- Observer pattern ensures UI stays synchronized
+- Charts and filters update automatically
+
+### Hierarchical Activity Planning
+- Support for unlimited nesting levels
+- Automatic recursive cost/time calculation
+- Full composite pattern implementation
+
+### Command History
+- Stack-based undo/redo system
+- All user actions are reversible
+- Clean separation of commands from business logic
+
+### Modern UI/UX
+- Color-coded sections for visual organization
+- Emoji icons for enhanced usability
+- Responsive layout with proper spacing
+- Professional typography and color scheme
+
+---
+
+## Team Contributions
+
+### Serenay Kumandaveren
+- **GUI Enhancement**: Modern, elegant interface redesign
+- **Chart Visualization**: Enhanced bar and pie charts
+- **User Experience**: Intuitive layout and controls
+- **Documentation**: Comprehensive README and usage guide
+
+### Additional Team Members
+- Core pattern implementations
+- City repository and data management
+- Weather observer system
+- Activity decorator hierarchy
+
+---
+
+## UML Diagram
+
+A complete UML diagram showing all design patterns and their relationships is provided as `UML_Diagram.pdf`. The diagram includes:
+
+- Pattern role mappings
+- Class hierarchies and relationships
+- Interface implementations
+- Dependency arrows
+- Component interactions
 
 ---
 
 ## Future Enhancements
 
-1. **Data Persistence**: Save/load plans to JSON
-2. **Advanced Filtering**: Multi-criteria city search
-3. **Distance Calculation**: Route optimization between cities
-4. **Budget Alerts**: Notifications when exceeding budget
-5. **Export Options**: PDF/Excel export of travel plans
-6. **Mobile Version**: Responsive design for tablets
-7. **User Preferences**: Customizable themes and layouts
+- 💾 **Save/Load**: Persist travel plans to JSON/XML
+- 🌐 **Network**: Multi-user collaboration features
+- 📱 **Mobile**: Cross-platform mobile application
+- 🗺 **Maps Integration**: Google Maps API integration
+- 💳 **Payment**: Integration with travel booking systems
+- 🔍 **Search**: Advanced city and activity search
+- 📧 **Sharing**: Export plans as PDF or email
 
 ---
 
-## Troubleshooting
+## Requirements Met
 
-### Issue: GUI not displaying properly
-**Solution**: Ensure Java 8+ is installed and display scaling is set correctly:
-```bash
-java -Dsun.java2d.dpiaware=false -jar Smart-Travel-Planner-Platform.jar
-```
-
-### Issue: Weather updates not showing
-**Solution**: Check that the weather provider thread is running. Verify observer registration.
-
-### Issue: Undo/Redo not working
-**Solution**: Ensure commands are executed through `CommandManager.executeCommand()`
-
----
-
-## UML Class Diagram
-
-See `uml-diagram.pdf` for the complete design pattern mapping and class relationships.
+✅ All 7 design patterns meaningfully implemented
+✅ GUI with 6+ panel types
+✅ Real-time weather updates
+✅ Hierarchical activity planning
+✅ Full undo/redo support
+✅ Modern, elegant interface
+✅ Comprehensive documentation
+✅ Runnable JAR file
+✅ UML diagram with pattern mappings
 
 ---
 
 ## License
 
-This project is developed for educational purposes as part of a Design Patterns course.
+This project is created for educational purposes as part of a Software Design Patterns course.
 
 ---
 
 ## Contact & Support
 
-For questions or issues, please contact:
-- **Serenay Kumandaveren**: serenaykumandaveren11@gmail.com
+For questions or issues, please contact the development team or open an issue on GitHub.
 
----
-
-## Acknowledgments
-
-- Course Instructor: [Professor Name]
-- Design Patterns Reference: Gang of Four patterns
-- Java Swing Framework Documentation
+**Repository**: [Smart-Travel-Planner-Platform](https://github.com/Semihactrk/Smart-Travel-Planner-Platform)

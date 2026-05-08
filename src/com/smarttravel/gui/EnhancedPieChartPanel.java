@@ -79,28 +79,53 @@ public class EnhancedPieChartPanel extends JPanel {
                 g2d.setStroke(new BasicStroke(2));
                 g2d.drawArc(pieX, pieY, pieSize, pieSize, startAngle, arcAngle);
 
+                // Draw percentage label
+                int midAngle = startAngle + arcAngle / 2;
+                double percentage = (double) count / total * 100;
+                int labelX = pieX + pieSize / 2 + (int) (70 * Math.cos(Math.toRadians(midAngle - 90)));
+                int labelY = pieY + pieSize / 2 + (int) (70 * Math.sin(Math.toRadians(midAngle - 90)));
+                g2d.setColor(Color.BLACK);
+                g2d.drawString(String.format("%.0f%%", percentage), labelX - 15, labelY + 5);
+
                 startAngle += arcAngle;
             }
             colorIndex++;
         }
 
         // Draw legend
-        int legendX = 10;
-        int legendY = pieY + pieSize + 20;
+        int legendX = pieX + pieSize + 30;
+        int legendY = pieY + 20;
         colorIndex = 0;
 
         g2d.setFont(LABEL_FONT);
         for (WeatherState state : WeatherState.values()) {
             int count = counts.get(state);
             g2d.setColor(WEATHER_COLORS[colorIndex % WEATHER_COLORS.length]);
-            g2d.fillRect(legendX, legendY, 12, 12);
+            g2d.fillRect(legendX, legendY, 15, 15);
 
             g2d.setColor(Color.BLACK);
-            g2d.drawRect(legendX, legendY, 12, 12);
-            g2d.drawString(state.name() + " (" + count + ")", legendX + 20, legendY + 10);
+            g2d.drawRect(legendX, legendY, 15, 15);
 
-            legendY += 20;
+            String stateIcon = getWeatherIcon(state);
+            g2d.drawString(stateIcon + " " + state.name() + " (" + count + ")", legendX + 25, legendY + 12);
+
+            legendY += 25;
             colorIndex++;
+        }
+    }
+
+    private String getWeatherIcon(WeatherState state) {
+        switch (state) {
+            case SUNNY:
+                return "☀";
+            case CLOUDY:
+                return "☁";
+            case RAINY:
+                return "🌧";
+            case SNOWY:
+                return "❄";
+            default:
+                return "?";
         }
     }
 }
