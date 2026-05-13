@@ -45,7 +45,8 @@ public class City {
 
     @Override
     public String toString() {
-        return name + " (Pop: " + population + ", Area: " + area + ", Temp: " + currentTemperature + ", "
-                + currentWeatherState + ")";
+        // Sayıları (örn. sıcaklığı) .1f ile sadece 1 ondalık basamak gösterecek şekilde kısalttık
+        return String.format("%s (Pop: %d, Area: %.1f km², Temp: %.1f°C, %s)", 
+                name, population, area, currentTemperature, currentWeatherState);
     }
 }
