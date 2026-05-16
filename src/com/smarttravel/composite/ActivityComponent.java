@@ -6,6 +6,14 @@ public interface ActivityComponent {
     void remove(ActivityComponent component);
 
     ActivityComponent getChild(int index);
+    
+    int getComponentIndex(ActivityComponent component);
+    
+    int getComponentCount();
+    
+    void moveComponentUp(ActivityComponent component);
+    
+    void moveComponentDown(ActivityComponent component);
 
     String getName();
 
