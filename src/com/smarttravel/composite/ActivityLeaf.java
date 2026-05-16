@@ -34,6 +34,26 @@ public class ActivityLeaf implements ActivityComponent {
     public ActivityComponent getChild(int index) {
         throw new UnsupportedOperationException();
     }
+    
+    @Override
+    public int getComponentIndex(ActivityComponent component) {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public int getComponentCount() {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public void moveComponentUp(ActivityComponent component) {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public void moveComponentDown(ActivityComponent component) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public String getName() {
