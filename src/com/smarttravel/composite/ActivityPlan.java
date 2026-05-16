@@ -12,41 +12,37 @@ public class ActivityPlan implements ActivityComponent {
     }
 
     @Override
-    public void add(ActivityComponent component) {
-        components.add(component);
-    }
+    public void add(ActivityComponent component) { components.add(component); }
 
     @Override
-    public void remove(ActivityComponent component) {
-        components.remove(component);
-    }
+    public void remove(ActivityComponent component) { components.remove(component); }
 
     @Override
-    public ActivityComponent getChild(int index) {
-        return components.get(index);
-    }
+    public ActivityComponent getChild(int index) { return components.get(index); }
 
     @Override
-    public String getName() {
-        return planName;
-    }
+    public String getName() { return planName; }
 
     @Override
-    public double getCost() {
-        return components.stream().mapToDouble(ActivityComponent::getCost).sum();
-    }
+    public double getCost() { return components.stream().mapToDouble(ActivityComponent::getCost).sum(); }
 
     @Override
-    public double getRequiredTime() {
-        return components.stream().mapToDouble(ActivityComponent::getRequiredTime).sum();
-    }
+    public double getRequiredTime() { return components.stream().mapToDouble(ActivityComponent::getRequiredTime).sum(); }
 
     @Override
     public void print() {
-        System.out.println(
-                "Plan: " + planName + " [Total Cost: $" + getCost() + ", Total Time: " + getRequiredTime() + "h]");
-        for (ActivityComponent component : components) {
-            component.print();
+        System.out.println("Plan: " + planName + " [Total Cost: $" + getCost() + ", Total Time: " + getRequiredTime() + "h]");
+        for (ActivityComponent component : components) component.print();
+    }
+
+    // YENİ EKLENEN METOT: Yukarı/Aşağı taşıma işlemi için
+    public void moveComponent(ActivityComponent component, int direction) {
+        int index = components.indexOf(component);
+        if (index < 0) return;
+        int newIndex = index + direction;
+        if (newIndex >= 0 && newIndex < components.size()) {
+            components.remove(index);
+            components.add(newIndex, component);
         }
     }
 }
