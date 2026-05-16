@@ -1,6 +1,7 @@
 package com.smarttravel.composite;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ActivityPlan implements ActivityComponent {
@@ -24,6 +25,32 @@ public class ActivityPlan implements ActivityComponent {
     @Override
     public ActivityComponent getChild(int index) {
         return components.get(index);
+    }
+    
+    @Override
+    public int getComponentIndex(ActivityComponent component) {
+        return components.indexOf(component);
+    }
+    
+    @Override
+    public int getComponentCount() {
+        return components.size();
+    }
+    
+    @Override
+    public void moveComponentUp(ActivityComponent component) {
+        int index = components.indexOf(component);
+        if (index > 0) {
+            Collections.swap(components, index, index - 1);
+        }
+    }
+    
+    @Override
+    public void moveComponentDown(ActivityComponent component) {
+        int index = components.indexOf(component);
+        if (index >= 0 && index < components.size() - 1) {
+            Collections.swap(components, index, index + 1);
+        }
     }
 
     @Override
